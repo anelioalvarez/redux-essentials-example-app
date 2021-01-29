@@ -14,10 +14,10 @@ const PostsList = () => {
         {post.content.substring(0, 100)}
       </p>
     </article>
-  ))
+  ));
   
   return (
-    <section className='post-list'>
+    <section className='posts-list'>
       <h2>Posts</h2>
       {renderedPosts}
     </section>
