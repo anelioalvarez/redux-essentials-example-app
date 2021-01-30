@@ -3,12 +3,12 @@ import { createSlice, nanoid } from "@reduxjs/toolkit";
 
 const initialState = [
   {
-    id: 1,
+    id: '1',
     title: 'Primera publicaion, vieja',
     content: 'hola a todes'
   },
   {
-    id: 2,
+    id: '2',
     title: 'Segunda publicacion, bro',
     content: 'algo mas de texto, claro'
   },
