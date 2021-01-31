@@ -5,12 +5,14 @@ const initialState = [
   {
     id: '1',
     title: 'Primera publicaion, vieja',
-    content: 'hola a todes'
+    content: 'hola a todes',
+    user: '4',
   },
   {
     id: '2',
     title: 'Segunda publicacion, bro',
-    content: 'algo mas de texto, claro'
+    content: 'algo mas de texto, claro',
+    user: '4',
   },
 ];
 
@@ -22,12 +24,13 @@ const postsSlice = createSlice({
       reducer(state, action) {
         state.push(action.payload)
       },
-      prepare(title, content) {
+      prepare(title, content, userId) {
         return {
           payload: {
             id: nanoid(),
             title,
-            content
+            content,
+            user: userId,
           }
         }
       }
