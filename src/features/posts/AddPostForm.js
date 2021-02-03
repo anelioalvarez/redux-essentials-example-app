@@ -17,7 +17,7 @@ const AddPostForm = () => {
   const onAuthorChanged = e => setUserId(e.target.value);
   
   const onSavePostClicked = () => {
-    dispatch(postAdded(title.trim(), content.trim(), userId));
+    dispatch(postAdded(title, content, userId));
     setTitle('');
     setContent('');
   }
@@ -40,6 +40,7 @@ const AddPostForm = () => {
           type='text'
           id='postTitle'
           name='postTitle'
+          placeholder="What's on your mind?"
           value={title}
           onChange={onTitleChanged}
         />
