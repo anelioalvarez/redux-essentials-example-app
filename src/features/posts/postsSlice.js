@@ -1,32 +1,17 @@
-import { createSlice, nanoid } from "@reduxjs/toolkit";
+import { createSlice, nanoid, createAsyncThunk } from "@reduxjs/toolkit";
+import { client } from '../../api/client';
 
 
-const initialReactions = {
-  thumbsUp: 0,
-  hooray: 0,
-  heart: 0,
-  rocket: 0,
-  eyes: 0
+const initialState = {
+  items: [],
+  status: 'idle',
+  error: null
 };
 
-const initialState = [
-  {
-    id: '1',
-    date: '2021-01-11T23:58:58.788Z',
-    title: 'Primera publicaion, vieja',
-    content: 'hola a todes',
-    user: '2',
-    reactions: initialReactions,
-  },
-  {
-    id: '2',
-    date: '2021-01-31T23:58:58.788Z',
-    title: 'Segunda publicacion, bro',
-    content: 'algo mas de texto, claro',
-    user: '4',
-    reactions: initialReactions,
-  },
-];
+export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
+  const response = await client.get('/fakeApi/posts');
+  return response.posts;
+})
 
 const postsSlice = createSlice({
   name: 'posts',
@@ -34,7 +19,7 @@ const postsSlice = createSlice({
   reducers: {
     postAdded:{
       reducer(state, action) {
-        state.push(action.payload)
+        state.items.push(action.payload)
       },
       prepare(title, content, userId) {
         return {
@@ -44,14 +29,20 @@ const postsSlice = createSlice({
             title,
             content,
             user: userId,
-            reactions: initialReactions,
+            reactions: {
+              thumbsUp: 0,
+              hooray: 0,
+              heart: 0,
+              rocket: 0,
+              eyes: 0
+            },
           }
         }
       }
     },
     postUpdated(state, action) {
       const { id, title, content } = action.payload;
-      const post = state.find(post => post.id === id);
+      const post = state.items.find(post => post.id === id);
       if (post) {
         post.title = title;
         post.content = content;
@@ -59,10 +50,23 @@ const postsSlice = createSlice({
     },
     reactionAdded(state, action) {
       const { postId, reaction } = action.payload;
-      const post = state.find(post => post.id === postId);
+      const post = state.items.find(post => post.id === postId);
       if (post) {
         ++post.reactions[reaction];
       }
+    },
+  },
+  extraReducers: {
+    [fetchPosts.pending](state, action) {
+      state.status = 'loading';
+    },
+    [fetchPosts.fulfilled](state, action) {
+      state.status = 'succeeded';
+      state.items = action.payload;
+    },
+    [fetchPosts.rejected](state, action) {
+      state.status = 'failed';
+      state.error = action.error.message;
     },
   }
 })
@@ -74,3 +78,11 @@ export const {
 } = postsSlice.actions;
 
 export default postsSlice.reducer;
+
+
+// Selectors
+export const selectAllPosts = state => state.posts.items;
+
+export const selectPostById = (state, postId) => (
+  selectAllPosts(state).find(post => post.id === postId)
+)
