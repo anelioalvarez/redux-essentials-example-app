@@ -62,7 +62,7 @@ const postsSlice = createSlice({
     },
     [fetchPosts.fulfilled](state, action) {
       state.status = 'succeeded';
-      state.items = action.payload;
+      state.items = state.items.concat(action.payload);
     },
     [fetchPosts.rejected](state, action) {
       state.status = 'failed';
