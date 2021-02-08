@@ -1,12 +1,14 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
+import { unwrapResult } from '@reduxjs/toolkit';
 
-import { postAdded } from './postsSlice';
+import { saveNewPost } from './postsSlice';
 
 const AddPostForm = () => {
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [userId, setUserId] = useState('');
+  const [saveRequestStatus, setSaveRequestStatus] = useState('idle');
   
   const dispatch = useDispatch();
   
@@ -16,14 +18,43 @@ const AddPostForm = () => {
   const onContentChanged = e => setContent(e.target.value);
   const onAuthorChanged = e => setUserId(e.target.value);
   
-  const onSavePostClicked = () => {
-    dispatch(postAdded(title, content, userId));
-    setTitle('');
-    setContent('');
-  }
+  const canSave = [
+    title.trim(),
+    content.trim(),
+    userId,
+  ].every(Boolean) && saveRequestStatus === 'idle';
 
-  //const canSave = Boolean(title) && Boolean(content) && Boolean(userId);
-  const canSave = title.trim() && content.trim() && userId;
+  const onSavePostClicked = async () => {
+    if (canSave) {
+      try {
+        setSaveRequestStatus('loading');
+        
+        // Los thunks generados por createAsyncThunk al ser despachados
+        // siempre retornan una Promesa resuelta con 
+        // la action object 'fullfilled', o la action object 'rejected' dentro,
+        // segun corresponda.
+        // Entonces, podemos quedarnos esa 'accion de resultado' para usarla
+        const resultAction = await dispatch(
+          saveNewPost({ title, content, user: userId })
+        );
+
+        // La funcion unwrapResult se usa para
+        // extraer el action.payload de una accion fulfilled,
+        // o arrojar el error si es la accion rejected
+        unwrapResult(resultAction);
+
+        setTitle('');
+        setContent('');
+        setUserId('');
+      }
+      catch (error) {
+        console.log('Failed to save the post: ', error);
+      }
+      finally {
+        setSaveRequestStatus('idle');
+      }
+    }
+  }
 
   const usersOptions = users.map(user => (
     <option key={user.id} value={user.id}>

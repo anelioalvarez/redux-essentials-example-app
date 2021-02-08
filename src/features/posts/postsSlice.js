@@ -13,33 +13,19 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   return response.posts;
 })
 
+export const saveNewPost = createAsyncThunk(
+  'posts/saveNewPost',
+  // The payload creator receives the partial { title, content, user } object
+  async initialPost => {
+    const response = await client.post('/fakeApi/posts', { post: initialPost });
+    return response.post;
+  }
+)
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    postAdded:{
-      reducer(state, action) {
-        state.items.push(action.payload)
-      },
-      prepare(title, content, userId) {
-        return {
-          payload: {
-            id: nanoid(),
-            date: new Date().toISOString(),
-            title,
-            content,
-            user: userId,
-            reactions: {
-              thumbsUp: 0,
-              hooray: 0,
-              heart: 0,
-              rocket: 0,
-              eyes: 0
-            },
-          }
-        }
-      }
-    },
     postUpdated(state, action) {
       const { id, title, content } = action.payload;
       const post = state.items.find(post => post.id === id);
@@ -67,6 +53,9 @@ const postsSlice = createSlice({
     [fetchPosts.rejected](state, action) {
       state.status = 'failed';
       state.error = action.error.message;
+    },
+    [saveNewPost.fulfilled](state, action) {
+      state.items.push(action.payload);
     },
   }
 })
