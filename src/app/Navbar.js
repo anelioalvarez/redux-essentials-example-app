@@ -1,13 +1,27 @@
 import React from 'react'
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom'
 
-import { fetchNotifications } from '../features/notifications/notificationsSlice';
+import {
+  fetchNotifications,
+  selectAllNotifications,
+} from '../features/notifications/notificationsSlice';
 
 export const Navbar = () => {
   const dispatch = useDispatch();
-
+  
   const fetchNowNotifications = () => dispatch(fetchNotifications());
+
+  const numUnreadNotifications = useSelector(state => (
+    selectAllNotifications(state)
+      .filter(notification => !notification.read)
+      .length
+  ));
+  const showBadge = numUnreadNotifications ?
+    <span className='badge'>
+      {numUnreadNotifications}
+    </span> : null;
+
 
   return (
     <nav>
@@ -17,7 +31,7 @@ export const Navbar = () => {
           <div className="navLinks">
             <Link to='/'>Posts</Link>
             <Link to='/users'>Users</Link>
-            <Link to='/notifications'>Notifications</Link>
+            <Link to='/notifications'>Notifications {showBadge}</Link>
           </div>
           <button className='button' onClick={fetchNowNotifications}>
             Fetch Notifications
