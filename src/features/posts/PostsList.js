@@ -2,29 +2,15 @@ import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link } from 'react-router-dom';
 import PostAuthor from './PostAuthor';
-import { fetchPosts, selectAllPosts } from './postsSlice';
+import { fetchPosts, selectPostById, selectPostIds } from './postsSlice';
 import ReactionButtons from './ReactionButtons';
 import TimeAgo from './TimeAgo';
 
-
-const PostsList = () => {
-  const dispatch = useDispatch();
-  const posts = useSelector(selectAllPosts);
-
-  const postsStatus = useSelector(state => state.posts.status);
-  const error = useSelector(state => state.posts.error);
-
-  useEffect(() => {
-    if (postsStatus === 'idle') {
-      dispatch(fetchPosts())
-    }
-  }, [postsStatus, dispatch])
-
-  const renderedPosts = posts.map(post => (
-    <article
-      className='post-excerpt'
-      key={post.id}
-    >
+// optimizando comportamiento de renderizado
+const PostExcerpt = ({ postId }) => {
+  const post = useSelector(state => selectPostById(state, postId));
+  return (
+    <article className='post-excerpt'>
       <h3>{post.title}</h3>
       <PostAuthor userId={post.user}/>
       <TimeAgo timestamp={post.date} />
@@ -39,6 +25,24 @@ const PostsList = () => {
         View Post
       </Link>
     </article>
+  )
+}
+
+const PostsList = () => {
+  const dispatch = useDispatch();
+  const postIds = useSelector(selectPostIds);
+
+  const postsStatus = useSelector(state => state.posts.status);
+  const error = useSelector(state => state.posts.error);
+
+  useEffect(() => {
+    if (postsStatus === 'idle') {
+      dispatch(fetchPosts())
+    }
+  }, [postsStatus, dispatch])
+
+  const renderedPosts = postIds.map(postId => (
+    <PostExcerpt key={postId} postId={postId}/>
   ));
 
   const showLoader = <div className='loader'>Loading...</div>;
