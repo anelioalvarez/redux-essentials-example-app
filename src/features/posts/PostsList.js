@@ -9,10 +9,7 @@ import TimeAgo from './TimeAgo';
 
 const PostsList = () => {
   const dispatch = useDispatch();
-  const orderedPosts = useSelector(selectAllPosts)
-    .slice()
-    .sort((post1, post2) => post2.date.localeCompare(post1.date)
-  );
+  const posts = useSelector(selectAllPosts);
 
   const postsStatus = useSelector(state => state.posts.status);
   const error = useSelector(state => state.posts.error);
@@ -23,7 +20,7 @@ const PostsList = () => {
     }
   }, [postsStatus, dispatch])
 
-  const renderedPosts = orderedPosts.map(post => (
+  const renderedPosts = posts.map(post => (
     <article
       className='post-excerpt'
       key={post.id}
