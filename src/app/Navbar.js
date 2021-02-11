@@ -12,11 +12,10 @@ export const Navbar = () => {
   
   const fetchNowNotifications = () => dispatch(fetchNotifications());
 
-  const numUnreadNotifications = useSelector(state => (
-    selectAllNotifications(state)
-      .filter(notification => !notification.read)
-      .length
-  ));
+  const numUnreadNotifications = useSelector(selectAllNotifications)
+    .filter(notification => !notification.read)
+    .length;
+    
   const showBadge = numUnreadNotifications ?
     <span className='badge'>
       {numUnreadNotifications}
